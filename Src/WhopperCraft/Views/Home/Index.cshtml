@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Whopper Craft Mod Pack";
+}
+<div class="card bg-dark text-white border-secondary mb-3 mx-auto" style="max-width: 600px;">
+    <img src="~/lib/whptrn.png" class="card-img-top" alt="Whopper Craft Mod Pack">
+    <div class="card-body text-center">
+        <h1>Whopper Craft Mod Pack</h1>
+        <p>Welcome to the Whopper Craft mod pack download page!</p>
+        <p>Click the button below to download the mod pack:</p>
+        <div id="download-button-container">
+            <button id="download-button" class="btn btn-primary">Download Mod Pack</button>
+            <button id="done-button" class="btn btn-success d-none">Download Complete</button>
+            <button id="error-button" class="btn btn-danger d-none">Download Failed</button>
+            <div id="progress-bar" class="progress mt-2 d-none">
+                <div id="progress-bar-inner" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Function to download the mod pack
+            function downloadModPack() {
+                // Disable the download button to prevent multiple clicks
+                $("#download-button").prop("disabled", true);
+                // Show the progress bar and start the download
+                $("#progress-bar").removeClass("d-none");
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "@Url.Content("~/lib/mods.zip")", true);
+                xhr.responseType = "blob";
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        // If the download is successful, update the progress bar and show the success message
+                        var blob = xhr.response;
+                        var url = window.URL.createObjectURL(blob);
+                        var a = document.createElement("a");
+                        a.href = url;
+                        a.download = "mods.zip";
+                        a.click();
+                        $("#done-button").removeClass("d-none");
+                    } else {
+                        // If there is an error, show the error message and re-enable the download button
+                        $("#error-button").removeClass("d-none");
+                    }
+                };
+                xhr.onerror = function () {
+                    // If there is an error, show the error message and re-enable the download button
+                    $("#error-button").removeClass("d-none");
+                };
+                xhr.onprogress = function (event) {
+                    // Update the progress bar as the file is downloaded
+                    var percentComplete = (event.loaded / event.total) * 100;
+                    $("#progress-bar-inner").width(percentComplete + "%");
+                    $("#progress-bar-inner").text(percentComplete.toFixed(0) + "%");
+                };
+                xhr.send();
+            }
+
+            // Add click event listener to the download button
+            $("#download-button").on("click", downloadModPack);
+        });
+    </script>
+}
